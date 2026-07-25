@@ -1,0 +1,111 @@
+@model OEEMonitoringSystem.Services.Interfaces.RegressionMetricsResult?
+@{
+    ViewData["Title"] = "Regression Model";
+    var machines = ViewBag.Machines as List<OEEMonitoringSystem.Models.Machine> ?? new List<OEEMonitoringSystem.Models.Machine>();
+    var startDate = ViewBag.StartDate as DateTime? ?? DateTime.Today.AddDays(-30);
+    var endDate = ViewBag.EndDate as DateTime? ?? DateTime.Today;
+    var machineId = ViewBag.MachineId as int?;
+    var metrics = Model ?? ViewBag.EvalMetrics as OEEMonitoringSystem.Services.Interfaces.RegressionMetricsResult;
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-0">
+            <i class="bi bi-graph-up-arrow"></i> OEE Regression Model
+        </h1>
+        <p class="text-muted mb-0">Train and evaluate the regression model to predict OEE % from machine features.</p>
+        <div class="mt-2">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-database"></i> Dataset / Features</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Train model</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="TrainRegression" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Start (local)</label>
+                        <input name="startDate" type="datetime-local" class="form-control" value="@startDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End (local)</label>
+                        <input name="endDate" type="datetime-local" class="form-control" value="@endDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Machine</label>
+                        <select name="machineId" class="form-select">
+                            <option value="">All machines</option>
+                            @foreach (var m in machines)
+                            {
+                                if (machineId == m.Id)
+                                { <option value="@m.Id" selected>@m.Name</option> }
+                                else
+                                { <option value="@m.Id">@m.Name</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Test fraction (0.1–0.5)</label>
+                        <input name="testFraction" type="number" step="0.05" min="0.1" max="0.5" value="0.2" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-cpu"></i> Train</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Evaluate saved model</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="EvaluateRegression" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Start (local)</label>
+                        <input name="startDate" type="datetime-local" class="form-control" value="@startDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End (local)</label>
+                        <input name="endDate" type="datetime-local" class="form-control" value="@endDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Machine</label>
+                        <select name="machineId" class="form-select">
+                            <option value="">All machines</option>
+                            @foreach (var m in machines)
+                            {
+                                <option value="@m.Id">@m.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-clipboard-data"></i> Evaluate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (metrics != null)
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Metrics</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <tr><th>RMSE</th><td>@metrics.RMSE.ToString("F4")</td></tr>
+                <tr><th>MAE</th><td>@metrics.MAE.ToString("F4")</td></tr>
+                <tr><th>R²</th><td>@metrics.RSquared.ToString("F4")</td></tr>
+                <tr><th>Training rows</th><td>@metrics.TrainingRows</td></tr>
+                <tr><th>Test rows</th><td>@metrics.TestRows</td></tr>
+            </table>
+        </div>
+    </div>
+}

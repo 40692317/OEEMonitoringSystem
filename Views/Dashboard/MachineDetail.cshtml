@@ -1,0 +1,202 @@
+@{
+    ViewData["Title"] = "Machine Details";
+}
+
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Machine Details</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+@if (ViewBag.Machine != null)
+{
+    var machine = (OEEMonitoringSystem.Models.Machine)ViewBag.Machine;
+    var latestOEE = ViewBag.LatestOEE as OEEMonitoringSystem.Models.OEECalculation;
+    var recentEvents = ViewBag.RecentEvents as List<OEEMonitoringSystem.Models.MachineEvent> ?? new List<OEEMonitoringSystem.Models.MachineEvent>();
+    var mlState = ViewBag.MachineState != null ? (OEEMonitoringSystem.Models.Enums.MachineState)ViewBag.MachineState : OEEMonitoringSystem.Models.Enums.MachineState.Normal;
+    var predictedOEE = ViewBag.PredictedOEE as float?;
+    var stateBadgeClass = mlState == OEEMonitoringSystem.Models.Enums.MachineState.Critical ? "bg-danger" : mlState == OEEMonitoringSystem.Models.Enums.MachineState.Warning ? "bg-warning text-dark" : "bg-success";
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-0">
+                        <i class="bi bi-gear"></i> @machine.Name
+                    </h1>
+                    <p class="text-muted mb-0">@machine.Location</p>
+                </div>
+                <div>
+                    <span class="badge @stateBadgeClass" title="ML classification">@mlState</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart"></i> OEE Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (latestOEE != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <div class="display-4 text-primary">@latestOEE.OEE%</div>
+                                <div class="small text-muted">OEE</div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row">
+                                    <div class="col-4 text-center">
+                                        <div class="h5 text-success">@latestOEE.Availability%</div>
+                                        <div class="small text-muted">Availability</div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <div class="h5 text-warning">@latestOEE.Performance%</div>
+                                        <div class="small text-muted">Performance</div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <div class="h5 text-info">@latestOEE.Quality%</div>
+                                        <div class="small text-muted">Quality</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @latestOEE.OEE%;" aria-valuenow="@latestOEE.OEE" aria-valuemin="0" aria-valuemax="100">
+                                            OEE: @latestOEE.OEE%
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 small text-muted">
+                                    <i class="bi bi-info-circle"></i> Calculated on @latestOEE.DisplayCalculationTime
+                                </div>
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="row small">
+                                        <div class="col-6">
+                                            <span class="text-muted">State (ML):</span>
+                                            <span class="badge @stateBadgeClass ms-1">@mlState</span>
+                                        </div>
+                                        <div class="col-6">
+                                            @if (predictedOEE.HasValue)
+                                            {
+                                                <span class="text-muted">Predicted OEE (ML):</span>
+                                                <strong class="text-info ms-1">@(predictedOEE.Value.ToString("F1"))%</strong>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-graph-up" style="font-size: 2rem; color: #ced4da;"></i>
+                            <h5 class="mt-2">No OEE Data Available</h5>
+                            <p class="text-muted">Generate machine events from your data source to calculate OEE metrics.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Machine Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Name</dt>
+                        <dd class="col-sm-7">@machine.Name</dd>
+
+                        <dt class="col-sm-5">Location</dt>
+                        <dd class="col-sm-7">@machine.Location</dd>
+
+                        <dt class="col-sm-5">Target Cycle Time</dt>
+                        <dd class="col-sm-7">@machine.TargetCycleTime seconds</dd>
+
+                        <dt class="col-sm-5">Status</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge @(machine.IsActive ? "bg-success" : "bg-secondary")">
+                                @(machine.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-5">Created</dt>
+                        <dd class="col-sm-7">@machine.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list"></i> Recent Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (recentEvents != null && recentEvents.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event Type</th>
+                                        <th>Timestamp</th>
+                                        <th>Quantity</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var evt in recentEvents)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info">@evt.EventType</span>
+                                            </td>
+                                            <td>@evt.DisplayTimestamp</td>
+                                            <td>@(evt.Quantity?.ToString() ?? "N/A")</td>
+                                            <td>@(evt.Duration.HasValue ? $"{evt.Duration.Value:F0}s" : "N/A")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock-history" style="font-size: 2rem; color: #ced4da;"></i>
+                            <h5 class="mt-2">No Recent Events</h5>
+                            <p class="text-muted">No events recorded for this machine in the last 24 hours.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i> Machine not found.
+    </div>
+}

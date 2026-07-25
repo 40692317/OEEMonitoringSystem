@@ -1,0 +1,78 @@
+@model IEnumerable<OEEMonitoringSystem.Models.MachineEvent>
+@{
+    ViewData["Title"] = "Event History";
+}
+
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Machines</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Event History</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Event History
+                </h1>
+                @if (ViewBag.Machine != null)
+                {
+                    var machine = (OEEMonitoringSystem.Models.Machine)ViewBag.Machine;
+                    <p class="text-muted mb-0">Events for @machine.Name</p>
+                }
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Event Type</th>
+                            <th>Timestamp</th>
+                            <th>Quantity</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge bg-info">@evt.EventType</span>
+                                </td>
+                                <td>@evt.DisplayTimestamp</td>
+                                <td>@(evt.Quantity?.ToString() ?? "N/A")</td>
+                                <td>@(evt.Duration.HasValue ? $"{evt.Duration.Value:F0}s" : "N/A")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-clock-history" style="font-size: 3rem; color: #ced4da;"></i>
+        <h3 class="mt-3">No Events Found</h3>
+        <p class="text-muted">No events have been recorded for this machine. Events come from your data source.</p>
+    </div>
+}

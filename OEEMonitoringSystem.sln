@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11612.150
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OEEMonitoringSystem", "OEEMonitoringSystem.csproj", "{AD370A96-9B3B-221A-8FE1-079FBA2A8063}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OEEMonitoringSystem.Tests", "D:\OEEMonitoringSystem\OEEMonitoringSystem.Tests\OEEMonitoringSystem.Tests.csproj", "{F470BE97-692C-9636-1DA4-ACDF73E9BD61}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD370A96-9B3B-221A-8FE1-079FBA2A8063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD370A96-9B3B-221A-8FE1-079FBA2A8063}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD370A96-9B3B-221A-8FE1-079FBA2A8063}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD370A96-9B3B-221A-8FE1-079FBA2A8063}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F470BE97-692C-9636-1DA4-ACDF73E9BD61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F470BE97-692C-9636-1DA4-ACDF73E9BD61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F470BE97-692C-9636-1DA4-ACDF73E9BD61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F470BE97-692C-9636-1DA4-ACDF73E9BD61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3CBAEAC9-4E46-4C58-8341-D6EBB3F00303}
+	EndGlobalSection
+EndGlobal

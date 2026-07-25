@@ -1,0 +1,180 @@
+@model OEEMonitoringSystem.Models.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-0">
+                    <i class="bi bi-file-earmark-bar-graph"></i> Reports
+                </h1>
+                <p class="text-muted mb-0">Generate and export OEE reports</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-funnel"></i> Generate Report
+        </h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Generate" method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="StartDate" class="form-label">Start Date</label>
+                        <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label asp-for="EndDate" class="form-label">End Date</label>
+                        <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="SelectedMachineIds">Select Machine(s)</label>
+                    <select asp-for="SelectedMachineIds"
+                            asp-items="@(new SelectList(Model.Machines, "Id", "Name"))"
+                            class="form-control"
+                            multiple="multiple">
+                        <option value="-1">All Machines</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Hold <strong>Ctrl</strong> (or Cmd on Mac) to select multiple machines.
+                    </small>
+                    <span asp-validation-for="SelectedMachineIds" class="text-danger"></span>
+                </div>
+
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Report
+                    </button>
+
+                    <a asp-action="WeeklyReport" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-week"></i> Weekly Report
+                    </a>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.WeeklyReports.Any())
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-calendar-week"></i> Weekly OEE Report
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Machine</th>
+                            <th>Week</th>
+                            <th>Availability %</th>
+                            <th>Performance %</th>
+                            <th>Quality %</th>
+                            <th>OEE %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.WeeklyReports)
+                        {
+                            <tr>
+                                <td>@report.MachineName</td>
+                                <td>@report.WeekStart.ToString("yyyy-MM-dd") - @report.WeekEnd.ToString("yyyy-MM-dd")</td>
+                                <td>@report.Availability.ToString("F2")</td>
+                                <td>@report.Performance.ToString("F2")</td>
+                                <td>@report.Quality.ToString("F2")</td>
+                                <td><strong>@report.OEE.ToString("F2")</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.OEECalculations.Any())
+{
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-table"></i> Report Results
+            </h5>
+            <div>
+                <a asp-controller="Report" asp-action="ExportToExcel"
+                   asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd tt")"
+                   asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd tt")"
+                   asp-route-selectedMachineIds="@string.Join(",", Model.SelectedMachineIds ?? new List<int>())"
+                   class="btn btn-success">
+                    Export to Excel
+                </a>
+
+                <a asp-controller="Report" asp-action="ExportToCsv"
+                   asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd tt")"
+                   asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd tt")"
+                   asp-route-selectedMachineIds="@string.Join(",", Model.SelectedMachineIds ?? new List<int>())"
+                   class="btn btn-info">
+                    Export to CSV
+                </a>
+
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Machine</th>
+                            <th>Period</th>
+                            <th>Availability %</th>
+                            <th>Performance %</th>
+                            <th>Quality %</th>
+                            <th>OEE %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var calc in Model.OEECalculations)
+                        {
+                            <tr>
+                                <td>@(calc.Machine?.Name ?? "Unknown")</td>
+                                <td>
+                                    @calc.PeriodStart.ToString("yyyy-MM-dd HH:mm ")
+                                    -
+                                    @calc.PeriodEnd.ToString("yyyy-MM-dd HH:mm")
+                                </td>
+                                <td>@calc.Availability.ToString("F2")</td>
+                                <td>@calc.Performance.ToString("F2")</td>
+                                <td>@calc.Quality.ToString("F2")</td>
+                                <td><strong>@calc.OEE.ToString("F2")</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-file-earmark-bar-graph" style="font-size: 3rem; color: #ced4da;"></i>
+        <h3 class="mt-3">No Reports Generated</h3>
+        <p class="text-muted">Generate a report using the filters above.</p>
+    </div>
+}

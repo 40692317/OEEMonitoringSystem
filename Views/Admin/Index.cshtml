@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-shield-lock"></i> Admin Panel
+        </h1>
+        <p class="lead">Manage your factory monitoring system</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-tools"></i> Machine Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Create, edit, and manage factory machines and their configurations.</p>
+                <a asp-action="Machines" class="btn btn-primary">
+                    <i class="bi bi-gear"></i> Manage Machines
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-people"></i> User Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Manage users, assign roles, and control system access.</p>
+                <a asp-action="ManageUsers" class="btn btn-primary">
+                    <i class="bi bi-person-badge"></i> Manage Users
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-badge"></i> Role Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Create, edit, and delete roles (e.g. Admin, Operator).</p>
+                <a asp-action="ManageRoles" class="btn btn-primary">
+                    <i class="bi bi-tags"></i> Manage Roles
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- User Assignment Statistics Table -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">User Assignment Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Assigned Machines</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Users != null)
+                        {
+                            @foreach (var user in (ViewBag.Users as IEnumerable<OEEMonitoringSystem.Models.ApplicationUser>).Where(u => u.IsActive))
+
+                            {
+                                // Get machines assigned to this specific user
+                                var assignedMachines = new List<OEEMonitoringSystem.Models.Machine>();
+
+                                if (ViewBag.Machines != null)
+                                {
+                                    assignedMachines = ((IEnumerable<OEEMonitoringSystem.Models.Machine>)ViewBag.Machines)
+                                    .Where(m => m.UserMachines != null &&
+                                    m.UserMachines.Any(um => um.UserId == user.Id))
+                                    .ToList();
+                                }
+
+                                <tr>
+                                    <td>
+                                        @user.FirstName @user.LastName<br>
+                                        <small class="text-muted">@user.Email</small>
+                                    </td>
+                                    <td>
+                                        @if (assignedMachines.Any())
+                                        {
+                                            <ul class="list-unstyled mb-0">
+                                                @foreach (var machine in assignedMachines)
+                                                {
+                                                    <li>@machine.Name</li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No machines assigned</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">
+                                    <span class="text-muted">Loading user assignment data...</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>

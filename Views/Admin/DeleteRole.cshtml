@@ -1,0 +1,39 @@
+@model Microsoft.AspNetCore.Identity.IdentityRole
+@{
+    ViewData["Title"] = "Delete Role";
+    var userCount = ViewBag.UserCount as int? ?? 0;
+}
+
+<h1><i class="bi bi-trash"></i> Delete Role</h1>
+
+<div class="alert alert-warning">
+    <h4>Are you sure you want to delete the role <strong>@Model.Name</strong>?</h4>
+    @if (userCount > 0)
+    {
+        <p class="mb-0">This role is assigned to <strong>@userCount</strong> user(s). They will be removed from this role when you delete it.</p>
+    }
+    else
+    {
+        <p class="mb-0">This action cannot be undone.</p>
+    }
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Role Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+            <dt class="col-sm-3">Users in Role</dt>
+            <dd class="col-sm-9">@userCount</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="DeleteRole" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="mt-3">
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+        <a asp-action="ManageRoles" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

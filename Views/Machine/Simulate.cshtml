@@ -1,0 +1,137 @@
+@model OEEMonitoringSystem.Models.Machine
+@{
+    ViewData["Title"] = "Simulate Events";
+}
+
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Machine" asp-action="Index">Machines</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Simulate Events</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-0">
+                    <i class="bi bi-play-circle"></i> Simulate Events
+                </h1>
+                <p class="text-muted mb-0">Generate machine events for testing</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Machines
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-gear"></i> Machine Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+
+                    <dt class="col-sm-4">Location</dt>
+                    <dd class="col-sm-8">@Model.Location</dd>
+
+                    <dt class="col-sm-4">Target Cycle Time</dt>
+                    <dd class="col-sm-8">@Model.TargetCycleTime seconds</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning"></i> Manual Event Simulation
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="SimulateEvent" method="post">
+                    <input type="hidden" name="machineId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <select class="form-select" id="eventType" name="eventType" required>
+                            <option value="">Select an event...</option>
+                            <option value="1">Machine Started</option>
+                            <option value="2">Machine Stopped</option>
+                            <option value="3">Production Cycle</option>
+                            <option value="4">Defective Unit</option>
+                            <option value="5">Maintenance</option>
+                            <option value="6">Idle</option>
+                        </select>
+                        <div class="form-text">Choose the type of event to simulate.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-play-circle"></i> Simulate Event
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-robot"></i> Automatic Simulation
+                </h5>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <p>Generate a random event for this machine. The system will automatically select a random event type and generate appropriate data.</p>
+                        <ul>
+                            <li><strong>Production Events</strong>: Generate units produced or defective units</li>
+                            <li><strong>Status Events</strong>: Machine start/stop or maintenance</li>
+                            <li><strong>Timing Events</strong>: Duration-based events with realistic time values</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <form asp-action="AutoSimulate" method="post">
+                            <input type="hidden" name="machineId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-shuffle"></i> Auto Generate Event
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="text-center">
+            <a asp-action="Events" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                <i class="bi bi-clock-history"></i> View Event History
+            </a>
+        </div>
+    </div>
+</div>

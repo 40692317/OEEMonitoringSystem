@@ -1,0 +1,112 @@
+﻿@model OEEMonitoringSystem.Models.ViewModels.WeeklyReportViewModel
+@{
+    ViewData["Title"] = "Weekly Report";
+}
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1><i class="bi bi-calendar-week"></i> Weekly OEE Report</h1>
+        <p class="text-muted">Generate weekly OEE reports by selecting month, week, and machines.</p>
+    </div>
+</div>
+
+<form asp-action="WeeklyReport" method="post">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label class="form-label">Month</label>
+            <select asp-for="Month" class="form-select">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i" selected="@(Model.Month == i)">
+                        @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Week</label>
+            <select asp-for="WeekNumber" class="form-select">
+                <option value="1">Week 1</option>
+                <option value="2">Week 2</option>
+                <option value="3">Week 3</option>
+                <option value="4">Week 4</option>
+                @* <option value="5">Week 5</option> *@
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Machines</label>
+            <select asp-for="SelectedMachineIds" class="form-select" multiple required>
+                <option value="all">Select All Machines</option>
+                @foreach (var machine in Model.Machines)
+                {
+                    <option value="@machine.Id" selected="@(Model.SelectedMachineIds.Contains(machine.Id))">
+                        @machine.Name
+                    </option>
+                }
+            </select>
+            <small class="text-muted">Hold Ctrl to select multiple machines.</small>
+        </div>
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-graph-up"></i> Generate Report
+        </button>
+    </div>
+</form>
+
+<hr />
+
+@if (Model.Results.Any())
+{
+    <div class="card mt-4">
+        <div class="card-header"><strong>Results</strong></div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Machine</th>
+                        <th>Week</th>
+                        <th>Availability %</th>
+                        <th>Performance %</th>
+                        <th>Quality %</th>
+                        <th>OEE %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Results)
+                    {
+                        <tr>
+                            <td>@r.MachineName</td>
+                            <td>@r.WeekStart.ToString("yyyy-MM-dd") - @r.WeekEnd.ToString("yyyy-MM-dd")</td>
+                            <td>@r.Availability.ToString("F2")</td>
+                            <td>@r.Performance.ToString("F2")</td>
+                            <td>@r.Quality.ToString("F2")</td>
+                            <td><strong>@r.OEE.ToString("F2")</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted mt-4">No data available for the selected week.</p>
+}
+@if (Model.Results != null && Model.Results.Any())
+{
+    <div class="mt-3">
+        <a asp-action="ExportWeeklyToExcel" asp-route-month="@Model.Month" asp-route-weekNumber="@Model.WeekNumber"
+           asp-route-selectedMachineIds="@string.Join(",", Model.SelectedMachineIds)"
+           class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Export to Excel
+        </a>
+
+        <a asp-action="ExportWeeklyToCsv" asp-route-month="@Model.Month" asp-route-weekNumber="@Model.WeekNumber"
+           asp-route-selectedMachineIds="@string.Join(",", Model.SelectedMachineIds)"
+           class="btn btn-info">
+            <i class="bi bi-filetype-csv"></i> Export to CSV
+        </a>
+    </div>
+}

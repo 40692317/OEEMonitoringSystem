@@ -1,0 +1,110 @@
+@model OEEMonitoringSystem.Models.ViewModels.AlertViewModel
+@{
+    ViewData["Title"] = "Alert Dashboard";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-0">
+                    <i class="bi bi-bell"></i> Alert Dashboard
+                </h1>
+                <p class="text-muted mb-0">Real-time alert monitoring and management</p>
+            </div>
+            <div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.RecentAlerts.Any())
+{
+    <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+        <h5 class="alert-heading">
+            <i class="bi bi-exclamation-triangle"></i> Recent Active Alerts
+        </h5>
+        <p class="mb-2">Showing 3 of @Model.TotalAlerts total active alerts</p>
+        <ul class="mb-0">
+            @foreach (var alert in Model.RecentAlerts)
+            {
+                <li>
+                    <strong>@alert.Machine.Name:</strong> @alert.Message
+                    <small class="text-muted">(@alert.DisplayTimestamp)</small>
+                </li>
+            }
+        </ul>
+        <div class="mt-2">
+            <a asp-controller="Alert" asp-action="AllAlerts" class="btn btn-sm btn-outline-warning">
+                <i class="bi bi-eye"></i> View All Alerts
+            </a>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+else
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <h5 class="alert-heading">
+            <i class="bi bi-check-circle"></i> No Active Alerts
+        </h5>
+        <p class="mb-0">Great! No active alerts at this time.</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up"></i> Alert Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4 text-primary">@Model.TotalAlerts</div>
+                        <div class="text-muted">Total Alerts</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4 text-success">@Model.ResolvedAlerts</div>
+                        <div class="text-muted">Resolved Alerts</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="display-4 text-warning">@Model.ActiveAlerts</div>
+                        <div class="text-muted">Active Alerts</div>
+                    </div>
+                </div>
+
+                @if (Model.TotalAlerts > 0)
+                {
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="progress">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: @(((double)Model.ResolvedAlerts / Model.TotalAlerts) * 100)%"
+                                     aria-valuenow="@Model.ResolvedAlerts"
+                                     aria-valuemin="0"
+                                     aria-valuemax="@Model.TotalAlerts">
+                                    @(Math.Round(((double)Model.ResolvedAlerts / Model.TotalAlerts) * 100, 1))% Resolved
+                                </div>
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                     style="width: @(((double)Model.ActiveAlerts / Model.TotalAlerts) * 100)%"
+                                     aria-valuenow="@Model.ActiveAlerts"
+                                     aria-valuemin="0"
+                                     aria-valuemax="@Model.TotalAlerts">
+                                    @(Math.Round(((double)Model.ActiveAlerts / Model.TotalAlerts) * 100, 1))% Active
+                                </div>
+                            </div>
+                            <small class="text-muted mt-2 d-block text-center">
+                                Resolution Rate: @(Math.Round(((double)Model.ResolvedAlerts / Model.TotalAlerts) * 100, 1))%
+                            </small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

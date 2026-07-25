@@ -1,0 +1,88 @@
+@model OEEMonitoringSystem.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h1>Create User</h1>
+
+<form asp-action="CreateUser" method="post">
+    <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" aria-required="true" placeholder="First Name" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" aria-required="true" placeholder="Last Name" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="ConfirmPassword" class="control-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Role</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="control-label">Assign Role</label>
+                        @{
+                            var allRoles = ViewBag.AllRoles as IEnumerable<string> ?? new List<string>();
+                            var first = true;
+                            foreach (var roleName in allRoles)
+                            {
+                                var id = "role" + roleName.Replace(" ", "");
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="role" value="@roleName" id="@id" @(first ? "checked" : "") />
+                                    <label class="form-check-label" for="@id">@roleName</label>
+                                </div>
+                                first = false;
+                            }
+                        }
+                        @if ((ViewBag.AllRoles as IEnumerable<string>)?.Any() != true)
+                        {
+                            <p class="text-muted small mb-0">No roles defined. <a asp-action="ManageRoles">Create a role</a> first.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="ManageUsers" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,185 @@
+@model OEEMonitoringSystem.Models.ApplicationUser
+@{
+    ViewData["Title"] = "User Details";
+    var userRoles = ViewBag.UserRoles as IEnumerable<string>;
+    var assignedMachines = ViewBag.AssignedMachines as IEnumerable<OEEMonitoringSystem.Models.Machine>;
+    var isLockedOut = (bool)(ViewBag.IsLockedOut ?? false);
+    var isCurrentUser = User.Identity?.Name == Model.UserName;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>User Details</h1>
+    <a asp-action="ManageUsers" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-person"></i> Account Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8"><strong>@Model.FirstName @Model.LastName</strong></dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">Username</dt>
+                    <dd class="col-sm-8">@Model.UserName</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Revoked</span>
+                        }
+                        @if (isLockedOut)
+                        {
+                            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-lock"></i> Locked Out</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Roles</dt>
+                    <dd class="col-sm-8">
+                        @if (userRoles != null && userRoles.Any())
+                        {
+                            foreach (var role in userRoles)
+                            {
+                                var badgeClass = role == "Admin" ? "bg-danger" : "bg-primary";
+                                <span class="badge @badgeClass">@role</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">No roles assigned</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Created</dt>
+                    <dd class="col-sm-8">@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</dd>
+
+                    <dt class="col-sm-4">Email Confirmed</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.EmailConfirmed)
+                        {
+                            <span class="text-success"><i class="bi bi-check-lg"></i> Yes</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted"><i class="bi bi-x-lg"></i> No</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Two-Factor</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.TwoFactorEnabled)
+                        {
+                            <span class="text-success"><i class="bi bi-shield-check"></i> Enabled</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Disabled</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-gear"></i> Assigned Machines</h5>
+            </div>
+            <div class="card-body">
+                @if (assignedMachines != null && assignedMachines.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var machine in assignedMachines)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@machine.Name</strong>
+                                    <br /><small class="text-muted">@machine.Location</small>
+                                </div>
+                                <span class="badge @(machine.IsActive ? "bg-success" : "bg-secondary")">
+                                    @(machine.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No machines assigned to this user.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-shield-lock"></i> Account Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="EditUser" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Edit User
+                    </a>
+
+                    <a asp-action="ResetPassword" asp-route-id="@Model.Id" class="btn btn-dark">
+                        <i class="bi bi-key"></i> Reset Password
+                    </a>
+
+                    @if (isLockedOut)
+                    {
+                        <form asp-action="UnlockUser" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-info w-100">
+                                <i class="bi bi-unlock"></i> Unlock Account
+                            </button>
+                        </form>
+                    }
+
+                    @if (!isCurrentUser)
+                    {
+                        <form asp-action="ToggleUserStatus" asp-route-id="@Model.Id" method="post"
+                              onsubmit="return confirm('@(Model.IsActive ? "Revoke access for this user?" : "Restore access for this user?")')">
+                            @Html.AntiForgeryToken()
+                            @if (Model.IsActive)
+                            {
+                                <button type="submit" class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-person-slash"></i> Revoke Access
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-person-check"></i> Restore Access
+                                </button>
+                            }
+                        </form>
+
+                        <a asp-action="DeleteUser" asp-route-id="@Model.Id"
+                           class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Delete User Permanently
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> You cannot revoke or delete your own account.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
