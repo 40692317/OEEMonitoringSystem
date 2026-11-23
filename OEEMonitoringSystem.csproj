@@ -25,6 +25,14 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+  <!-- The test project lives in a subfolder; keep its files out of the web project. -->
+  <ItemGroup>
+    <Compile Remove="OEEMonitoringSystem.Tests\**" />
+    <Content Remove="OEEMonitoringSystem.Tests\**" />
+    <EmbeddedResource Remove="OEEMonitoringSystem.Tests\**" />
+    <None Remove="OEEMonitoringSystem.Tests\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="Data\" />

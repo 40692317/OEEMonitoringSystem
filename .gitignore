@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local archive of the project, not part of the source
+/OEEMonitoringSystem.zip

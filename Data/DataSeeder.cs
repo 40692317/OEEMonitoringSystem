@@ -18,7 +18,8 @@ public static class DataSeeder
         if (await db.Machines.AnyAsync())
             return;
 
-        var admin = await userManager.FindByEmailAsync("admin@gmail.com");
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        var admin = await userManager.FindByEmailAsync(RoleSeeder.GetAdminEmail(configuration));
         if (admin == null) return;
 
         var machines = CreateMachines();
