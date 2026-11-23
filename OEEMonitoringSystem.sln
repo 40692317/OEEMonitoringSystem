@@ -4,7 +4,7 @@ VisualStudioVersion = 18.4.11612.150
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OEEMonitoringSystem", "OEEMonitoringSystem.csproj", "{AD370A96-9B3B-221A-8FE1-079FBA2A8063}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OEEMonitoringSystem.Tests", "D:\OEEMonitoringSystem\OEEMonitoringSystem.Tests\OEEMonitoringSystem.Tests.csproj", "{F470BE97-692C-9636-1DA4-ACDF73E9BD61}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OEEMonitoringSystem.Tests", "OEEMonitoringSystem.Tests\OEEMonitoringSystem.Tests.csproj", "{F470BE97-692C-9636-1DA4-ACDF73E9BD61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
