@@ -70,11 +70,21 @@ Why ML.NET: I compared ML.NET, scikit-learn and TensorFlow against the project's
    cd OEEMonitoringSystem
    ```
 
-2. Set the database connection string. `appsettings.json` holds a placeholder. Instead of editing it, set an environment variable (PowerShell shown):
+2. Set the database connection string and the admin password as environment variables in the same terminal you will run the app from. Secrets are not stored in `appsettings.json`. PowerShell:
 
    ```powershell
-   $env:ConnectionStrings__DefaultConnection = "Server=localhost;Port=5432;Database=OEEc;User Id=postgres;Password=<your password>"
+   $env:ConnectionStrings__DefaultConnection = "Server=localhost;Port=5432;Database=OEEc;User Id=postgres;Password=<your database password>"
+   $env:SeedAdmin__Password = "<choose an admin password>"
    ```
+
+   Bash:
+
+   ```bash
+   export ConnectionStrings__DefaultConnection="Server=localhost;Port=5432;Database=OEEc;User Id=postgres;Password=<your database password>"
+   export SeedAdmin__Password="<choose an admin password>"
+   ```
+
+   The admin password must have at least 6 characters, one digit, one lowercase and one uppercase letter (the Identity rules in `Program.cs`).
 
 3. Create the database from the migrations:
 
@@ -88,15 +98,20 @@ Why ML.NET: I compared ML.NET, scikit-learn and TensorFlow against the project's
    dotnet run --project OEEMonitoringSystem.csproj
    ```
 
-   Open the URL printed in the console (for example `https://localhost:7073`).
+   Open the URL printed in the console (for example `https://localhost:7073`) and log in with the admin email (`SeedAdmin:Email`, default `admin@gmail.com`) and the password you set.
 
-On first start the app seeds the Admin and Operator roles, an admin account (see `Data/RoleSeeder.cs`) and demo machines, events and alerts. Change the admin password before using the app anywhere other than your own machine.
+On start the app seeds the Admin and Operator roles and the admin account, then demo machines, events and alerts for that admin.
+
+- If `SeedAdmin__Password` is not set, no admin account is created, no demo data is seeded, and a warning is written to the console and log.
+- If the admin account already exists, its password is reset to the configured value on each start, so changing the variable changes the password. If the variable is not set, the existing password is left alone.
 
 ### Configuration
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `ConnectionStrings:DefaultConnection` | placeholder | PostgreSQL connection string |
+| `SeedAdmin:Email` | `admin@gmail.com` | Email of the seeded admin account |
+| `SeedAdmin:Password` | not set | Admin password. Set it as an environment variable only, never in a committed file |
 | `ML:OeeDatasetCsv` | `ML/OEE_dataset.csv` | Training dataset |
 | `ML:TestFraction` | `0.2` | Share of rows held out for testing (80/20 split) |
 | `BackgroundSimulation:IntervalSeconds` | `10` | How often simulated machine events are generated |
@@ -136,7 +151,7 @@ What I would change next: predict a **future** OEE value (for example the next s
 
 ## Tests
 
-The `OEEMonitoringSystem.Tests` project has **31 NUnit tests** (Moq for the database layer). All pass.
+The `OEEMonitoringSystem.Tests` project has **39 NUnit tests** (Moq for the database and Identity layers). All pass.
 
 ```bash
 dotnet test OEEMonitoringSystem.sln
@@ -144,8 +159,9 @@ dotnet test OEEMonitoringSystem.sln
 
 - `OEECalculationServiceTests` (18 tests): invalid and empty periods, events outside the period, runtime from start/stop/idle/maintenance segments, out-of-order events, a machine still running at period end, quality from production and defect counts, negative quantities, performance capped at 100%, and OEE as the product of the three factors.
 - `MachineStateLabelHelperTests` (13 test cases): Normal, Warning and Critical boundaries for each factor, the enum mapping and the threshold constants.
+- `RoleSeederTests` (8 tests): the admin account is only created when a password is configured, a blank password counts as missing, an existing admin's password follows the setting, and failures are logged without the password.
 
-The tests cover the OEE calculation and state labelling logic. Controllers, views and the ML training pipeline are not covered by automated tests yet.
+The tests cover the OEE calculation, state labelling and admin seeding logic. Controllers, views and the ML training pipeline are not covered by automated tests yet.
 
 ## Project structure
 
